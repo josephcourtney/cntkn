@@ -1,12 +1,12 @@
 # ===== Global defaults for cntkn =====
 
 [core]
-  default_model = "gpt-5"
+  default_model = "gpt-5-"
 
 [config]
   # Default configuration values when no pyproject.toml overrides are present.
-  default_model = "gpt-5"
-  color         = "auto"  # "auto" | "on" | "off"
+  default_model = "gpt-5-"
+  color         = "auto"   # "auto" | "on" | "off"
 
 [cli]
   # Which subcommand runs when none is provided.
@@ -14,7 +14,7 @@
 
   [cli.count]
     # Defaults for the `cntkn count` command (used when flags are not passed).
-    model   = "gpt-5"
+    model   = "gpt-5-"
     json    = false
     quiet   = false
     verbose = false
