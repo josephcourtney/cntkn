@@ -59,6 +59,11 @@ def read_sources(sources: list[tuple[str, str | Path]]) -> list[tuple[str, str]]
         if isinstance(src, Path):
             results.append((label, src.read_text(encoding="utf-8")))
         elif src == "STDIN":
+            if sys.stdin.isatty():
+                raise click.ClickException(
+                    "Reading from stdin was requested ('-') but no input was piped.\n"
+                    "Try: echo 'text' | cntkn -"
+                )
             results.append((label, sys.stdin.read()))
         else:
             # already a text literal
@@ -281,6 +286,13 @@ def count(
 
     # Resolve model from config if not explicitly passed.
     resolved_model = model or cfg.default_model
+    if not isinstance(resolved_model, str) or not resolved_model.strip():
+        msg = (
+            "Configured default model must be a non-empty string. "
+            "Check [tool.cntkn].default_model in your pyproject.toml "
+            "or pass --model explicitly."
+        )
+        raise click.ClickException(msg)
 
     # ----------------- removed dead code (no color output implemented yet) -----------------
     # NOTE: Previously computed resolved_color; it wasn't used anywhere.

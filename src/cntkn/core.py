@@ -21,6 +21,9 @@ class TiktokenCounter:
 
     @staticmethod
     def encode(text: str, model: str, *, return_tokens: bool = False) -> int | list[int]:
+        if not isinstance(model, str):
+            msg = f"model must be a string, got {type(model).__name__}"
+            raise TypeError(msg)
         enc = tiktoken.encoding_for_model(model)
         encoded = enc.encode(text)
         return encoded if return_tokens else len(encoded)
