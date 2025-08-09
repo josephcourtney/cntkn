@@ -1,7 +1,7 @@
 # =================================== project ====================================
 [project]
   name = "cntkn"
-  version = "0.0.6"
+version = "0.0.7"
   description = "CLI for tiktoken"
   readme = "README.md"
   authors = [
@@ -18,7 +18,7 @@
   requires-python = ">=3.13"
   dependencies = [
     "click>=8.2.1",
-    "tiktoken>=0.9.0",
+    "tiktoken>=0.11.0",
   ]
 
   [project.scripts]
@@ -26,13 +26,13 @@
 
 [dependency-groups]
   dev = [
-    "ruff>=0.11.0",
-    "ty>=0.0.1a16",
-    "pytest>=8.3.5",
-    "coverage>=7.7.0",
-    "pytest-cov>=6.0.0",
+    "coverage>=7.10.2",
+    "freezegun>=1.5.5",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
     "pytest-randomly>=3.16.0",
-    "freezegun>=1.5.1",
+    "ruff>=0.12.8",
+    "ty>=0.0.1a17",
   ]
 
 # =================================== build ====================================

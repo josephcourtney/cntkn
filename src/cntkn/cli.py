@@ -8,9 +8,8 @@ from typing import TYPE_CHECKING, Any, cast
 import click
 from click import Command
 
-from .config import Config, load_config
-from .core import (
-    DEFAULTS,
+from cntkn.config import Config, load_config
+from cntkn.core import (
     SUPPORTED_MODELS,
     SUPPORTED_PREFIXES,
     TiktokenCounter,
@@ -19,6 +18,7 @@ from .core import (
     get_supported_models,
     is_model_supported,
 )
+from cntkn.defaults import package_defaults
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping  # pragma: no cover
@@ -98,6 +98,9 @@ class ModelName(click.ParamType):
 
 
 MODEL_TYPE = ModelName()
+PKG_DEFAULTS = package_defaults()
+CLI_DEFAULT_CMD = PKG_DEFAULTS["cli"]["default_command"]
+COUNT_DEFAULTS = PKG_DEFAULTS["cli"]["count"]
 
 
 class DefaultGroup(click.Group):
@@ -142,7 +145,7 @@ def _color_from_config(cfg: Config) -> bool | None:
 
 @click.group(
     cls=DefaultGroup,
-    default_cmd="count",
+    default_cmd=CLI_DEFAULT_CMD,
     invoke_without_command=True,
     context_settings={"ignore_unknown_options": True, "allow_extra_args": True},
 )
@@ -267,20 +270,20 @@ def _emit_results(
     "--json",
     "as_json",
     is_flag=True,
-    default=False,
+    default=None,  # default comes from packaged defaults
     help="Emit JSON output.",
 )
 @click.option(
     "-q",
     "--quiet",
     is_flag=True,
-    default=False,
+    default=None,  # default comes from packaged defaults
     help="Suppress output.",
 )
 @click.option(
     "--verbose",
     is_flag=True,
-    default=False,
+    default=None,  # default comes from packaged defaults
     help="Show detailed output.",
 )
 @click.option(
@@ -288,13 +291,13 @@ def _emit_results(
     "--tokens",
     "show_tokens",
     is_flag=True,
-    default=False,
+    default=None,  # default comes from packaged defaults
     help="Show tokens instead of counts.",
 )
 @click.option(
     "--total",
     is_flag=True,
-    default=False,
+    default=None,  # default comes from packaged defaults
     help="Sum token counts for all inputs.",
 )
 @click.option(
@@ -310,19 +313,19 @@ def count(
     file_path: list[str],
     model: str | None,
     *,
-    as_json: bool,
-    quiet: bool,
-    verbose: bool,
-    show_tokens: bool,
-    total: bool,
+    as_json: bool | None,
+    quiet: bool | None,
+    verbose: bool | None,
+    show_tokens: bool | None,
+    total: bool | None,
     color: bool | None,
 ) -> None:
     # "Main command for counting tokens. Handles CLI args, resolves inputs, and delegates to core logic."
     cfg: Config = ctx.obj["config"]
     counter: TokenCounter = ctx.obj["counter"]
 
-    # Resolve model from config if not explicitly passed.
-    resolved_model = model or cfg.default_model or DEFAULTS["model"]
+    # Resolve effective defaults (package → config → CLI flag)
+    resolved_model = model or cfg.default_model or COUNT_DEFAULTS["model"]
 
     if not isinstance(resolved_model, str) or not resolved_model.strip():
         msg = (
@@ -332,6 +335,13 @@ def count(
         )
         raise click.ClickException(msg)
 
+    # Derive flag defaults from packaged defaults when flags are omitted.
+    # NOTE: color remains unused for now; we still parse/support the option.
+    as_json = COUNT_DEFAULTS["json"] if as_json is None else as_json
+    quiet = COUNT_DEFAULTS["quiet"] if quiet is None else quiet
+    verbose = COUNT_DEFAULTS["verbose"] if verbose is None else verbose
+    show_tokens = COUNT_DEFAULTS["tokens"] if show_tokens is None else show_tokens
+    total = COUNT_DEFAULTS["total"] if total is None else total
     # ----------------- removed dead code (no color output implemented yet) -----------------
     # NOTE: Previously computed resolved_color; it wasn't used anywhere.
     # Keeping the option for future ANSI output, but removing the unused computation.
