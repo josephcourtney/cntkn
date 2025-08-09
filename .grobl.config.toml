@@ -1,0 +1,76 @@
+# files whose content is not helpful context 
+exclude_tree = [
+  # AI Coding Agent
+  "AGENTS.md",
+
+  # dev config
+  # dev config - pre-commit
+  ".pre-commit-config.yaml",
+  # dev config - grobl
+  ".groblignore",
+  ".grobl.config.json",
+  ".grobl.config.toml",
+
+  # dev config - git
+  ".git/",
+  ".gitmodules",
+
+  # dev config - ruff
+  "ruff.default.toml",
+
+  # lock files
+  "uv.lock",
+
+  # Environment & virtualenvs
+  ".env",
+  ".envrc",
+  ".venv/",
+  "venv/",
+  "ENV/",
+  "env/",
+  "*.env",
+
+  # Python cache
+  "__pycache__/",
+  "*.py[cod]",
+  "*$py.class",
+
+  # Build & packaging
+  "build/",
+  "dist/",
+  "eggs/",
+  ".eggs/",
+  "parts/",
+  "sdist/",
+  "wheels/",
+  "*.egg-info/",
+  ".installed.cfg",
+
+  # Test & coverage
+  ".hypothesis/",
+  ".pytest_cache/",
+  ".coverage",
+  "coverage.xml",
+  "htmlcov/",
+
+  # IDE / editor
+  ".vscode/",
+  ".idea/",
+  "*.sublime-project",
+  "*.sublime-workspace",
+
+  # MkDocs site build
+  "site/",
+
+  # OS files
+  ".DS_Store",
+  "Thumbs.db",
+
+]
+# files whose presence is valuable information but whose content is usually not 
+exclude_print = [
+  ".gitignore",
+  "LICENSE.md",
+]
+include_tree_tags = "tree"
+include_file_tags = "file"

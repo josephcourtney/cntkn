@@ -1,11 +1,11 @@
 # =================================== project ====================================
 [project]
   name = "cntkn"
-  version = "0.0.3"
+  version = "0.0.4"
   description = "CLI for tiktoken"
   readme = "README.md"
   authors = [
-    { name = "Joseph M. Courtney", email = "Joseph.M.Courtney@gmail.com" },
+    { name = "Joseph M Courtney", email = "Joseph.M.Courtney@gmail.com" },
   ]
   urls = { "Homepage" = "http://github.com/josephcourtney/cntkn", "Bug Tracker" = "http://github.com/josephcourtney/cntkn/issues" }
   license = { text = "GPL-3.0-only" }
@@ -17,6 +17,7 @@
   ]
   requires-python = ">=3.13"
   dependencies = [
+    "click>=8.2.1",
     "tiktoken>=0.9.0",
   ]
 
@@ -26,13 +27,11 @@
 [dependency-groups]
   dev = [
     "ruff>=0.11.0",
-    "basedpyright>=1.28.1",
+    "ty>=0.0.1a16",
+    "pytest>=8.3.5",
     "coverage>=7.7.0",
     "pytest-cov>=6.0.0",
-    "pytest>=8.3.5",
     "pytest-randomly>=3.16.0",
-    "awl",
-    "commitizen>=4.6.0",
     "freezegun>=1.5.1",
   ]
 
@@ -41,6 +40,7 @@
   requires      = ["uv_build>=0.6,<0.7"]
   build-backend = "uv_build"
 
+[tool.uv.sources]
 
 # ==================================== lint ====================================
 [tool.ruff]
@@ -52,30 +52,6 @@
       # "TD003",  # Missing issue link for this TODO
       # "FIX002", # Line contains TODO, consider resolving the issue
     ]
-
-# =================================== typecheck ===================================
-[tool.basedpyright]
-  typeCheckingMode = "strict"
-  pythonVersion    = "3.13"
-  pythonPlatform   = "Darwin"
-
-  include = ["src", "tests"]
-  exclude = ["**/__pycache__"]
-
-  reportMissingImports   = true
-  reportImplicitOverride = false
-  reportMissingTypeStubs = false
-  reportUnusedParameter  = false
-  [[tool.basedpyright.executionEnvironments]]
-    root                       = "tests"
-    extraPaths                 = ["src"]
-    reportUnknownParameterType = false
-    reportUnknownVariableType  = false
-    reportMissingParameterType = false
-    reportUnknownMemberType    = false
-    reportUnknownLambdaType    = false
-    reportUnknownArgumentType  = false
-
 
 # =================================== test ===================================
 [tool.pytest.ini_options]
@@ -117,9 +93,6 @@
 [tool.coverage.xml]
   output = ".coverage.xml"
 
-[tool.uv.sources]
-  awl = { git = "https://github.com/josephcourtney/awl" }
-
 [tool.commitizen]
   name                     = "cz_conventional_commits"
   tag_format               = "v{version}"
@@ -148,3 +121,8 @@
     api        = "API‐layer changes"
     docs       = "Documentation"
     tests      = "Test suite changes"
+
+# ================================== cntkn ==================================
+[tool.cntkn]
+  default_model = "gpt-4o"
+  color         = "auto"   # "auto" | "on" | "off"

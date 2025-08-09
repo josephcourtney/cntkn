@@ -1,22 +1,16 @@
-<<<<<<< HEAD
-from click.testing import CliRunner
-
-from {{ project_name }}.cli import main
-
-def test_import():
-    assert main
-=======
 from importlib.metadata import version as pkg_version
+from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
-from cntkn.cli import main
+from cntkn.cli import ModelName, _color_from_config, main
+from cntkn.config import Config, _find_pyproject, load_config
 
 
 @pytest.fixture
 def runner():
-    return CliRunner(mix_stderr=False)
+    return CliRunner()
 
 
 def test_models_command(runner):
@@ -185,4 +179,34 @@ def test_module_invocation(runner):
     result = runner.invoke(main, ["foo"], prog_name="python -m cntkn")
     assert result.exit_code == 0
     assert result.stdout.strip().isdigit()
->>>>>>> 6c25a8e (initial commit)
+
+
+def test_empty_piped_stdin_is_error(runner):
+    """When stdin is piped but empty, cntkn should raise the same ClickException as no input."""
+    # Simulate piped stdin (isatty=False) but with no content
+    result = runner.invoke(main, ["count"], input="")
+    assert result.exit_code != 0
+    err_lower = result.stderr.lower()
+    assert "no input provided" in err_lower
+    # stdout should be empty in this case
+    assert not result.stdout
+
+
+def test_color_from_config_on_off():
+    assert _color_from_config(Config(color_mode="on")) is True
+    assert _color_from_config(Config(color_mode="off")) is False
+
+
+def test_modelname_convert_success_with_supported_prefix(monkeypatch):
+    # Simulate a supported model; use a known prefix so we don't depend on tiktoken lists here.
+    mn = ModelName()
+    # Pick a prefix you know is valid via your suite (e.g., "gpt-4")
+    value = "gpt-4o"  # anything your environment treats as supported
+    assert mn.convert(value, None, None) == value
+
+
+def test_load_config_without_pyproject(tmp_path: Path) -> None:
+    # Ensure empty directory (no pyproject.toml)
+    cfg = load_config(cwd=tmp_path)
+    assert cfg.default_model  # defaults returned
+    assert _find_pyproject(tmp_path) is None
