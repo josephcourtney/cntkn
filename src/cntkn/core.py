@@ -9,6 +9,10 @@ from tiktoken.model import MODEL_PREFIX_TO_ENCODING, MODEL_TO_ENCODING
 SUPPORTED_MODELS = sorted(MODEL_TO_ENCODING.keys())
 SUPPORTED_PREFIXES = sorted(MODEL_PREFIX_TO_ENCODING.keys())
 
+DEFAULTS = {
+    "model": "gpt-4o",
+}
+
 
 class TokenCounter(Protocol):
     """Protocol describing something that can count or return tokens for a model."""

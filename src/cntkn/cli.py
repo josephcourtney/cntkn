@@ -10,6 +10,7 @@ from click import Command
 
 from .config import Config, load_config
 from .core import (
+    DEFAULTS,
     SUPPORTED_MODELS,
     SUPPORTED_PREFIXES,
     TiktokenCounter,
@@ -60,10 +61,11 @@ def read_sources(sources: list[tuple[str, str | Path]]) -> list[tuple[str, str]]
             results.append((label, src.read_text(encoding="utf-8")))
         elif src == "STDIN":
             if sys.stdin.isatty():
-                raise click.ClickException(
+                msg = (
                     "Reading from stdin was requested ('-') but no input was piped.\n"
                     "Try: echo 'text' | cntkn -"
                 )
+                raise click.ClickException(msg)
             results.append((label, sys.stdin.read()))
         else:
             # already a text literal
@@ -260,12 +262,47 @@ def _emit_results(
     show_default=False,
     help="Model name or prefix (defaults to config).",
 )
-@click.option("-j", "--json", "as_json", is_flag=True, default=False, help="Emit JSON output.")
-@click.option("-q", "--quiet", is_flag=True, default=False, help="Suppress output.")
-@click.option("--verbose", is_flag=True, default=False, help="Show detailed output.")
-@click.option("--tokens", "show_tokens", is_flag=True, default=False, help="Print raw tokens.")
-@click.option("--total", is_flag=True, default=False, help="Sum token counts for all inputs.")
-@click.option("--color/--no-color", "color", default=None, help="Force-enable or disable color output.")
+@click.option(
+    "-j",
+    "--json",
+    "as_json",
+    is_flag=True,
+    default=False,
+    help="Emit JSON output.",
+)
+@click.option(
+    "-q",
+    "--quiet",
+    is_flag=True,
+    default=False,
+    help="Suppress output.",
+)
+@click.option(
+    "--verbose",
+    is_flag=True,
+    default=False,
+    help="Show detailed output.",
+)
+@click.option(
+    "-t",
+    "--tokens",
+    "show_tokens",
+    is_flag=True,
+    default=False,
+    help="Show tokens instead of counts.",
+)
+@click.option(
+    "--total",
+    is_flag=True,
+    default=False,
+    help="Sum token counts for all inputs.",
+)
+@click.option(
+    "--color/--no-color",
+    "color",
+    default=None,
+    help="Force-enable or disable color output.",
+)
 @click.pass_context
 def count(
     ctx: click.Context,
@@ -285,7 +322,8 @@ def count(
     counter: TokenCounter = ctx.obj["counter"]
 
     # Resolve model from config if not explicitly passed.
-    resolved_model = model or cfg.default_model
+    resolved_model = model or cfg.default_model or DEFAULTS["model"]
+
     if not isinstance(resolved_model, str) or not resolved_model.strip():
         msg = (
             "Configured default model must be a non-empty string. "
@@ -314,6 +352,7 @@ def count(
         )
         raise click.ClickException(msg)
 
+    # Build results once; resolve_input_texts already materialized (label, text)
     results: list[tuple[str, int | list[int]]] = []
     for label, text in texts:
         enc = count_tokens(text, resolved_model, return_tokens=show_tokens, counter=counter)
